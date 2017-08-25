@@ -71,7 +71,7 @@ FormatToken Scanner::onDefaultState()
 
     if (first == '\\' && peek() == '\n') {
         move();
-        return FormatToken(Format_Whitespace, anchor(), 2);
+        return FormatToken(PythonEditor::Whitespace, anchor(), 2);
     }
 
     if (first == '.' && peek().isDigit())
@@ -131,7 +131,7 @@ FormatToken Scanner::readStringLiteral(QChar quoteChar)
     if (ch == quoteChar)
         clearState();
     move();
-    return FormatToken(Format_String, anchor(), length());
+    return FormatToken(PythonEditor::String, anchor(), length());
 }
 
 /**
@@ -153,7 +153,7 @@ FormatToken Scanner::readMultiLineStringLiteral(QChar quoteChar)
         move();
     }
 
-    return FormatToken(Format_String, anchor(), length());
+    return FormatToken(PythonEditor::String, anchor(), length());
 }
 
 /**
@@ -207,15 +207,15 @@ FormatToken Scanner::readIdentifier()
     }
 
     const QString v = QString(m_text + m_markedPosition, length());
-    Format tkFormat = Format_Identifier;
+    PythonEditor::Format tkFormat = PythonEditor::Identifier;
     if (v == "self")
-        tkFormat = Format_ClassField;
+        tkFormat = PythonEditor::ClassField;
     else if (builtins.contains(v))
-        tkFormat = Format_Type;
+        tkFormat = PythonEditor::Type;
     else if (magics.contains(v))
-        tkFormat = Format_MagicAttr;
+        tkFormat = PythonEditor::MagicAttr;
     else if (keywords.contains(v))
-        tkFormat = Format_Keyword;
+        tkFormat = PythonEditor::Keyword;
 
     return FormatToken(tkFormat, anchor(), length());
 }
@@ -264,7 +264,7 @@ FormatToken Scanner::readNumber()
         if (isValidIntegerSuffix(peek()))
             move();
     }
-    return FormatToken(Format_Number, anchor(), length());
+    return FormatToken(PythonEditor::Number, anchor(), length());
 }
 
 FormatToken Scanner::readFloatNumber()
@@ -313,7 +313,7 @@ FormatToken Scanner::readFloatNumber()
             || (ch == 'j' || ch =='J'))
         move();
 
-    return FormatToken(Format_Number, anchor(), length());
+    return FormatToken(PythonEditor::Number, anchor(), length());
 }
 
 /**
@@ -326,7 +326,7 @@ FormatToken Scanner::readComment()
         move();
         ch = peek();
     }
-    return FormatToken(Format_Comment, anchor(), length());
+    return FormatToken(PythonEditor::Comment, anchor(), length());
 }
 
 /**
@@ -339,7 +339,7 @@ FormatToken Scanner::readDoxygenComment()
         move();
         ch = peek();
     }
-    return FormatToken(Format_Doxygen, anchor(), length());
+    return FormatToken(PythonEditor::Doxygen, anchor(), length());
 }
 
 /**
@@ -349,7 +349,7 @@ FormatToken Scanner::readWhiteSpace()
 {
     while (peek().isSpace())
         move();
-    return FormatToken(Format_Whitespace, anchor(), length());
+    return FormatToken(PythonEditor::Whitespace, anchor(), length());
 }
 
 static bool isOperatorChar(char ch)
@@ -387,13 +387,13 @@ FormatToken Scanner::readOther()
             move();
             ch = peek().toLatin1();
         }
-        return FormatToken(Format_Operator, anchor(), length());
+        return FormatToken(PythonEditor::Operator, anchor(), length());
     }
 
     if (isBraceChar(ch))
-        return FormatToken(Format_Braces, anchor(), length());
+        return FormatToken(PythonEditor::Braces, anchor(), length());
 
-    return FormatToken(Format_Unknown, anchor(), length());
+    return FormatToken(PythonEditor::Unknown, anchor(), length());
 }
 
 void Scanner::clearState()

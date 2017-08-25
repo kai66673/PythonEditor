@@ -39,6 +39,8 @@ class PythonHighlighter : public QSyntaxHighlighter
 public:
     PythonHighlighter(QTextDocument *parent = 0);
 
+    void setFormatStyle(PythonEditor::Format fmt, const QColor &color, PythonEditor::FontStyle style = PythonEditor::Normal);
+
 private:
     void highlightBlock(const QString &text) override;
     int  highlightLine(const QString &text, int initialState);
@@ -46,7 +48,7 @@ private:
     void highlightImport(Scanner &scanner);
 
 private:
-    QTextCharFormat formats[Format_FormatsAmount];
+    QTextCharFormat formats[PythonEditor::FormatsAmount];
 };
 
 } // namespace Internal

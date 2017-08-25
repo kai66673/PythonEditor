@@ -25,51 +25,31 @@
 
 #pragma once
 
+#include "pythoneditor.h"
+
 #include <QString>
 
 namespace PyEditor {
 namespace Internal {
-
-enum Format {
-    Format_Number = 0,
-    Format_String,
-    Format_Keyword,
-    Format_Type,
-    Format_ClassField,
-    Format_MagicAttr, // magic class attribute/method, like __name__, __init__
-    Format_Operator,
-    Format_Braces,
-    Format_Comment,
-    Format_Doxygen,
-    Format_Identifier,
-    Format_Whitespace,
-    Format_ImportedModule,
-    Format_Unknown,
-
-    Format_ClassDef,
-    Format_FunctionDef,
-
-    Format_FormatsAmount
-};
 
 class FormatToken
 {
 public:
     FormatToken() {}
 
-    FormatToken(Format format, int position, int length)
+    FormatToken(PythonEditor::Format format, int position, int length)
         : m_format(format), m_position(position), m_length(length)
     {}
 
     bool isEndOfBlock() { return m_position == -1; }
 
-    Format format() const { return m_format; }
+    PythonEditor::Format format() const { return m_format; }
     int begin() const { return m_position; }
     int end() const { return m_position + m_length; }
     int length() const { return m_length; }
 
 private:
-    Format m_format = Format_FormatsAmount;
+    PythonEditor::Format m_format = PythonEditor::FormatsAmount;
     int m_position = -1;
     int m_length = -1;
 };

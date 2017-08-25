@@ -57,27 +57,20 @@ namespace Internal {
  * @endcode
  */
 
-enum FontStyle {
-    Normal = 0,
-    Bold = 1,
-    Italic = 2,
-    BoldItalic = 3
-};
-
-static void fillFormat(QTextCharFormat &format, const QColor &color, FontStyle style = Normal)
+static void fillFormat(QTextCharFormat &format, const QColor &color, PythonEditor::FontStyle style = PythonEditor::Normal)
 {
     format.setForeground(color);
 
     switch (style) {
-        case Normal:
+        case PythonEditor::Normal:
             break;
-        case Bold:
+        case PythonEditor::Bold:
             format.setFontWeight(QFont::Bold);
             break;
-        case Italic:
+        case PythonEditor::Italic:
             format.setFontItalic(true);
             break;
-        case BoldItalic:
+        case PythonEditor::BoldItalic:
             format.setFontWeight(QFont::Bold);
             format.setFontItalic(true);
             break;
@@ -87,22 +80,28 @@ static void fillFormat(QTextCharFormat &format, const QColor &color, FontStyle s
 PythonHighlighter::PythonHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
-    fillFormat(formats[Format_Number],          "brown");
-    fillFormat(formats[Format_String],          "magenta");
-    fillFormat(formats[Format_Keyword],         "blue");
-    fillFormat(formats[Format_Type],            "blueviolet",       Bold);
-    fillFormat(formats[Format_ClassField],      "black",            Italic);
-    fillFormat(formats[Format_MagicAttr],       "black",            BoldItalic);
-    fillFormat(formats[Format_Operator],        "saddlebrown");
-    fillFormat(formats[Format_Braces],          "sandybrown");
-    fillFormat(formats[Format_Comment],         "green");
-    fillFormat(formats[Format_Doxygen],         "darkgreen",        Bold);
-    fillFormat(formats[Format_Identifier],      "lightslategray");
-    fillFormat(formats[Format_Whitespace],      "gray");
-    fillFormat(formats[Format_ImportedModule],  "darkmagenta",      Italic);
-    fillFormat(formats[Format_Unknown],         "red",              BoldItalic);
-    fillFormat(formats[Format_ClassDef],        "olivedrab",        BoldItalic);
-    fillFormat(formats[Format_FunctionDef],     "olive",            BoldItalic);
+    fillFormat(formats[PythonEditor::Number],          "brown");
+    fillFormat(formats[PythonEditor::String],          "magenta");
+    fillFormat(formats[PythonEditor::Keyword],         "blue");
+    fillFormat(formats[PythonEditor::Type],            "blueviolet",       PythonEditor::Bold);
+    fillFormat(formats[PythonEditor::ClassField],      "black",            PythonEditor::Italic);
+    fillFormat(formats[PythonEditor::MagicAttr],       "black",            PythonEditor::BoldItalic);
+    fillFormat(formats[PythonEditor::Operator],        "saddlebrown");
+    fillFormat(formats[PythonEditor::Braces],          "sandybrown");
+    fillFormat(formats[PythonEditor::Comment],         "green");
+    fillFormat(formats[PythonEditor::Doxygen],         "darkgreen",        PythonEditor::Bold);
+    fillFormat(formats[PythonEditor::Identifier],      "lightslategray");
+    fillFormat(formats[PythonEditor::Whitespace],      "gray");
+    fillFormat(formats[PythonEditor::ImportedModule],  "darkmagenta",      PythonEditor::Italic);
+    fillFormat(formats[PythonEditor::Unknown],         "red",              PythonEditor::BoldItalic);
+    fillFormat(formats[PythonEditor::ClassDef],        "olivedrab",        PythonEditor::BoldItalic);
+    fillFormat(formats[PythonEditor::FunctionDef],     "olive",            PythonEditor::BoldItalic);
+}
+
+void PythonHighlighter::setFormatStyle(PythonEditor::Format fmt, const QColor &color, PythonEditor::FontStyle style)
+{
+    if (fmt != PythonEditor::FormatsAmount)
+        fillFormat(formats[fmt], color, style);
 }
 
 /**
@@ -136,19 +135,19 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
     FormatToken tk;
     bool hasOnlyWhitespace = true;
     while (!(tk = scanner.read()).isEndOfBlock()) {
-        Format format = tk.format();
+        PythonEditor::Format format = tk.format();
         setFormat(tk.begin(), tk.length(), formats[format]);
 
-        if (format == Format_Keyword && hasOnlyWhitespace) {
+        if (format == PythonEditor::Keyword && hasOnlyWhitespace) {
             switch (scanner.keywordKind(tk)) {
                 case Scanner::ImportOrFrom:
                     highlightImport(scanner);
                     break;
                 case  Scanner::Class:
-                    highlightDeclarationIdentifier(scanner, formats[Format_ClassDef]);
+                    highlightDeclarationIdentifier(scanner, formats[PythonEditor::ClassDef]);
                     break;
                 case Scanner::Def:
-                    highlightDeclarationIdentifier(scanner, formats[Format_FunctionDef]);
+                    highlightDeclarationIdentifier(scanner, formats[PythonEditor::FunctionDef]);
                     break;
                 default:
                     setFormat(tk.begin(), tk.length(), formats[format]);
@@ -156,7 +155,7 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
             }
         }
 
-        if (format == Format_Whitespace)
+        if (format == PythonEditor::Whitespace)
             hasOnlyWhitespace = false;
     }
 
@@ -167,14 +166,14 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
 void PythonHighlighter::highlightDeclarationIdentifier(Scanner &scanner, const QTextCharFormat &format)
 {
     FormatToken tk = scanner.read();
-    while (tk.format() == Format_Whitespace) {
-        setFormat(tk.begin(), tk.length(), formats[Format_Whitespace]);
+    while (tk.format() == PythonEditor::Whitespace) {
+        setFormat(tk.begin(), tk.length(), formats[PythonEditor::Whitespace]);
         tk = scanner.read();
     }
 
     if (tk.isEndOfBlock())
         return;
-    if (tk.format() == Format_Identifier)
+    if (tk.format() == PythonEditor::Identifier)
         setFormat(tk.begin(), tk.length(), format);
     else
         setFormat(tk.begin(), tk.length(), formats[tk.format()]);
@@ -187,9 +186,9 @@ void PythonHighlighter::highlightImport(Scanner &scanner)
 {
     FormatToken tk;
     while (!(tk = scanner.read()).isEndOfBlock()) {
-        Format format = tk.format();
-        if (tk.format() == Format_Identifier)
-            format = Format_ImportedModule;
+        PythonEditor::Format format = tk.format();
+        if (tk.format() == PythonEditor::Identifier)
+            format = PythonEditor::ImportedModule;
         setFormat(tk.begin(), tk.length(), formats[format]);
     }
 }

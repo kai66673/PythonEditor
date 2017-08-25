@@ -1,5 +1,5 @@
 # PythonEditor
-Use Qt5 Widget for editing python sources on PyQt5 Application
+Qt5 Widget for editing python sources on PyQt5 Application
 
 
 Run the following commands:

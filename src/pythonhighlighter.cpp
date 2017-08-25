@@ -149,13 +149,10 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
                 case Scanner::Def:
                     highlightDeclarationIdentifier(scanner, formats[PythonEditor::FunctionDef]);
                     break;
-                default:
-                    setFormat(tk.begin(), tk.length(), formats[format]);
-                    break;
             }
         }
 
-        if (format == PythonEditor::Whitespace)
+        if (format != PythonEditor::Whitespace)
             hasOnlyWhitespace = false;
     }
 
